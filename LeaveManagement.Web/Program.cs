@@ -1,12 +1,13 @@
-using LeaveManagement.Web.Data;
+using LeaveManagement.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using LeaveManagement.Web.Configurations;
-using LeaveManagement.Web.Contracts;
-using LeaveManagement.Web.Repositories;
+using LeaveManagement.Application.Configurations;
+using LeaveManagement.Application.Contracts;
+using LeaveManagement.Application.Repositories;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using LeaveManagement.Web.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 // var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
@@ -41,8 +42,13 @@ builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
+builder.Host.UseSerilog((ctx, lc) =>
+lc.WriteTo.Console().
+ReadFrom.Configuration(ctx.Configuration));
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
